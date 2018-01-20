@@ -1,0 +1,1 @@
+# serverless-typescript-pdf-generator
