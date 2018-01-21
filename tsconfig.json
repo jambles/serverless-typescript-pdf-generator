@@ -1,5 +1,15 @@
 {
   "compilerOptions": {
-    "sourceMap": true
+    "sourceMap": true,
+    "lib": [
+      "dom",
+      "es6"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "types": [
+      "node"
+    ]
   }
 }
