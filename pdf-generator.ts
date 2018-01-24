@@ -23,12 +23,10 @@ export const generatePdf = async (event, context, callback) => {
                 let data = '';
 
                 res.on('data', function (chunk) {
-                    console.log('receiving data');
                     data += chunk;
                 });
 
                 res.on('end', function () {
-                    console.log('finished getting data');
                     convertToPdf(data, async function (pdf) {
                         await saveFile(pdf);
                         callback(null, new Response(200, {url: 'to do'}));
