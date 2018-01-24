@@ -4,6 +4,71 @@ frameworkVersion: '>=1.0.0 <2.0.0'
 
 custom:
   defaultStage: 'pre'
+  documentation:
+    api:
+      info:
+        version: '1'
+        title: Pdfr
+        description: Generate Pdfs from various inputs
+        termsOfService: https://www.none.com
+        contact:
+          name: someone
+          url: https://www.none.com/contact
+          email: api-contact@none.com
+        license:
+          name: The license
+          url: https://www.none.com
+    models:
+      - name: GeneratePdfRequest
+        description: "Object definition for generating a pdf"
+        contentType: "application/json"
+        schema:
+          type: object
+          properties:
+            fromUrl:
+              type: boolean
+            urlOptions:
+              type: object
+              properties:
+                method:
+                  type: string
+                  enum: ['GET', 'POST']
+                protocol:
+                  type: string
+                  enum: ['http:', 'https:']
+                host:
+                  type: string
+                port:
+                  type: integer
+                  minimum: 1
+                  maximum: 65535
+                path:
+                  type: string
+              required:
+                - 'host'
+          required:
+            - 'fromUrl'
+#          if:
+#            properties:
+#              fromUrl: true
+#          then:
+#            required: urlOptions
+      - name: GeneratePdfResponse
+        description: "Returns a presigned url of the generated pdf"
+        contentType: "application/json"
+        schema:
+          type: object
+          properties:
+            pdfUrl:
+              type: string
+      - name: ErrorResponse
+        description: "Generic error response model"
+        contentType: "application/json"
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
 
 provider:
   name: aws
@@ -43,6 +108,14 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
         Stage: ${self:provider.stage}
+    BodyRequestValidator:
+      Type: "AWS::ApiGateway::RequestValidator"
+      Properties:
+        Name: 'body-only-req-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
     IamPolicy:
       Type: AWS::IAM::Policy
       Properties:
@@ -64,6 +137,8 @@ resources:
 
 plugins:
   - serverless-webpack
+  - serverless-reqvalidator-plugin
+  - serverless-aws-documentation
 
 functions:
   createPdf:
@@ -72,7 +147,20 @@ functions:
      - http:
         path: 'generate/pdf'
         method: post
-#        authorizer:
-#            arn: ${self:provider.environment.authoriserArn}
         cors: true
+        reqValidatorName: BodyRequestValidator
+        documentation:
+          summary: "Creates a pdf"
+          description: "Can be created from either a url or a dynamodb source (not yet implemented"
+          requestBody:
+            description: "Request body description"
+          requestModels:
+            "application/json": "GeneratePdfRequest"
+          methodResponses:
+            - statusCode: "200"
+              responseModels:
+                "application/json": "GeneratePdfResponse"
+            - statusCode: "400"
+              responseModels:
+                "application/json": "ErrorResponse"
 

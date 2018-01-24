@@ -11,6 +11,8 @@
     "aws-sdk": "^2.185.0",
     "copy-webpack-plugin": "^4.3.1",
     "serverless-webpack": "^3.0.0",
+    "serverless-aws-documentation": "^1.0.0",
+    "serverless-reqvalidator-plugin": "^1.0.1",
     "ts-loader": "^3.2.0",
     "typescript": "^2.5.2",
     "webpack": "^3.6.0"
